@@ -58,10 +58,27 @@
 
         <div class="resultBox">
           <div class="resultLabel">Итоговая сумма</div>
-          <div id="amountText" class="resultValue">—</div>
-          <button id="copyAmountBtn" class="copyBtn" type="button" aria-label="Копировать сумму">Копировать</button>
+          <div class="resultValueRow">
+            <div id="amountText" class="resultValue">—</div>
+          </div>
+          <div class="resultActions">
+            <button id="copyAmountBtn" class="actionBtn" type="button" aria-label="Копировать сумму">Копировать</button>
+            <button id="saveResultBtn" class="actionBtn" type="button" aria-label="Сохранить расчёт">Сохранить</button>
+          </div>
         </div>
       </div>
+
+      <details class="history" open>
+        <div class="historyHeader">
+          <summary>История расчётов</summary>
+          <div id="selectedSummary" class="selectedSummary"></div>
+        </div>
+        <div id="historyList" class="historyList"></div>
+        <div class="historyFooter">
+          <button id="clearHistoryBtn" class="linkBtn" type="button">Очистить историю</button>
+          <button id="deselectHistoryBtn" class="linkBtn" type="button">Отменить выделение</button>
+        </div>
+      </details>
     </section>
   </main>
   <span id="measure" class="measure"></span>

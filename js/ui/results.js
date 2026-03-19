@@ -14,6 +14,10 @@ export function createResults({ durationEl, amountEl, copyBtn }) {
     copyBtn.addEventListener('click', async () => {
       const text = getAmountText();
       if (!text) return;
+
+      copyBtn.classList.add('clicked');
+      setTimeout(() => copyBtn.classList.remove('clicked'), 220);
+
       const prev = copyBtn.textContent;
       try {
         await navigator.clipboard.writeText(text);

@@ -1,5 +1,6 @@
 import { createCombinedField } from './ui/combinedField.js';
 import { createControls } from './ui/controls.js';
+import { createHistory } from './ui/history.js';
 import { createResults } from './ui/results.js';
 import { parseTime, parseTimeSeconds, formatDurationFromSeconds } from './utils/time.js';
 import { formatMoney, pluralizeDays } from './utils/format.js';
@@ -20,12 +21,19 @@ const els = {
   durationText: document.getElementById('durationText'),
   amountText: document.getElementById('amountText'),
   copyAmountBtn: document.getElementById('copyAmountBtn'),
+  saveResultBtn: document.getElementById('saveResultBtn'),
+  historyList: document.getElementById('historyList'),
+  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+  deselectHistoryBtn: document.getElementById('deselectHistoryBtn'),
+  selectedSummary: document.getElementById('selectedSummary'),
   errorText: document.getElementById('error')
 };
 
 let combined;
 let controls;
 let results;
+let history;
+let lastCalculation = null;
 
 function recalc() {
   if (!combined || !controls || !results) return;
@@ -42,7 +50,12 @@ function recalc() {
   const daysValue = controls.getDays() ?? 1;
   if (els.daysSuffix) els.daysSuffix.textContent = pluralizeDays(daysValue);
 
-  if (!startValue) { results.clear(); return; }
+  if (!startValue) {
+    results.clear();
+    lastCalculation = null;
+    if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
+    return;
+  }
 
   const isFocused = (document.activeElement === els.timeInput);
   const rightAbsent = rightDigits.length === 0;
@@ -50,13 +63,39 @@ function recalc() {
 
   if (live) {
     const startSeconds = parseTimeSeconds(startValue);
-    if (startSeconds === null) { results.clear(); if (els.errorText) els.errorText.textContent = 'Проверьте время начала.'; return; }
+    if (startSeconds === null) {
+      results.clear();
+      lastCalculation = null;
+      if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
+      if (els.errorText) els.errorText.textContent = 'Проверьте время начала.';
+      return;
+    }
     const now = new Date();
     const endSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     let diffSeconds = endSeconds - startSeconds; if (diffSeconds < 0) diffSeconds += 24 * 3600;
-    if (rateValue === null) { results.clear(); if (els.errorText) els.errorText.textContent = 'Проверьте стоимость часа.'; return; }
-    results.setDuration(formatDurationFromSeconds(diffSeconds, true));
-    results.setAmount(formatMoney((diffSeconds / 3600) * rateValue * daysValue));
+    const pad = (n) => String(n).padStart(2, '0');
+    const endValue = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    if (rateValue === null) {
+      results.clear();
+      lastCalculation = null;
+      if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
+      if (els.errorText) els.errorText.textContent = 'Проверьте стоимость часа.';
+      return;
+    }
+    const duration = formatDurationFromSeconds(diffSeconds, true);
+    const amount = formatMoney((diffSeconds / 3600) * rateValue * daysValue);
+    results.setDuration(duration);
+    results.setAmount(amount);
+    lastCalculation = {
+      digits: allDigits,
+      start: startValue,
+      end: endValue,
+      rate: rateValue,
+      days: daysValue,
+      duration,
+      amount
+    };
+    if (els.saveResultBtn) els.saveResultBtn.classList.add('visible');
     return;
   }
 
@@ -68,14 +107,60 @@ function recalc() {
   if (rateValue === null) { results.clear(); if (els.errorText) els.errorText.textContent = 'Проверьте стоимость часа.'; return; }
 
   let diff = endMinutes - startMinutes; if (diff < 0) diff += 24 * 60;
-  results.setDuration(formatDurationFromSeconds(diff * 60, false));
-  results.setAmount(formatMoney((diff / 60) * rateValue * daysValue));
+  const duration = formatDurationFromSeconds(diff * 60, false);
+  const amount = formatMoney((diff / 60) * rateValue * daysValue);
+  results.setDuration(duration);
+  results.setAmount(amount);
+  lastCalculation = {
+    digits: allDigits,
+    start: startValue,
+    end: endValue,
+    rate: rateValue,
+    days: daysValue,
+    duration,
+    amount
+  };
+  if (els.saveResultBtn) els.saveResultBtn.classList.add('visible');
 }
 
 function init() {
   combined = createCombinedField({ input: els.timeInput, ghost: els.timeGhost, clearBtn: els.timeClear, liveTag: els.liveTag, measure: els.measure }, recalc);
   controls = createControls({ rateInput: els.rateInput, minusBtn: els.minusBtn, plusBtn: els.plusBtn, daysInput: els.daysInput, minusDaysBtn: els.minusDaysBtn, plusDaysBtn: els.plusDaysBtn }, recalc);
   results = createResults({ durationEl: els.durationText, amountEl: els.amountText, copyBtn: els.copyAmountBtn });
+  if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
+
+  if (els.saveResultBtn) {
+    els.saveResultBtn.addEventListener('click', () => {
+      if (!lastCalculation) return;
+      els.saveResultBtn.classList.add('clicked');
+      setTimeout(() => els.saveResultBtn.classList.remove('clicked'), 220);
+
+      els.saveResultBtn.classList.add('saved');
+      setTimeout(() => els.saveResultBtn.classList.remove('saved'), 800);
+
+      history?.add(lastCalculation);
+      if (els.timeInput) els.timeInput.value = '';
+      if (combined) combined.render();
+      recalc();
+    });
+  }
+
+  const summaryHeader = document.querySelector('.history summary');
+  history = createHistory({
+    listEl: els.historyList,
+    clearBtn: els.clearHistoryBtn,
+    deselectBtn: els.deselectHistoryBtn,
+    summaryEl: els.selectedSummary,
+    summaryHeaderEl: summaryHeader,
+    onSelect: (entry) => {
+      if (!entry) return;
+      if (els.timeInput) els.timeInput.value = entry.digits || '';
+      if (els.rateInput) els.rateInput.value = entry.rate != null ? String(entry.rate) : els.rateInput.value;
+      if (els.daysInput) els.daysInput.value = entry.days != null ? String(entry.days) : els.daysInput.value;
+      if (combined) combined.render();
+      recalc();
+    }
+  });
 
   // periodic recalc when in live mode (right absent)
   setInterval(() => {

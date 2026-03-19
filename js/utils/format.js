@@ -36,3 +36,17 @@ export function pluralizeDays(value) {
   if (rem10 >= 2 && rem10 <= 4) return 'дня';
   return 'дней';
 }
+
+export function pluralizeEntries(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 'записей';
+
+  const abs = Math.floor(Math.abs(num));
+  const rem100 = abs % 100;
+  if (rem100 >= 11 && rem100 <= 14) return 'записей';
+
+  const rem10 = abs % 10;
+  if (rem10 === 1) return 'запись';
+  if (rem10 >= 2 && rem10 <= 4) return 'записи';
+  return 'записей';
+}
