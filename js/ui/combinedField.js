@@ -60,6 +60,8 @@ export function createCombinedField({ input, ghost, clearBtn, liveTag, measure }
     if (clearBtn) clearBtn.classList.toggle('visible', hasValue);
 
     if (!hasValue) {
+      // Use an input-style placeholder instead of a concrete time value
+      // so it doesn't look like a pre-filled time.
       input.placeholder = '00:00 - 00:00';
       if (ghost) ghost.textContent = '';
       if (liveTag) liveTag.style.display = 'none';
@@ -79,8 +81,8 @@ export function createCombinedField({ input, ghost, clearBtn, liveTag, measure }
     let display;
 
     if (isFocused) {
-      if (totalDigits < 4) {
-        display = left;
+      if (rightRaw.length === 0) {
+        display = left + (totalDigits >= 4 ? ' - ' : '');
         if (liveTag) liveTag.style.display = 'flex';
       } else {
         display = left + (right ? (' - ' + right) : ' - ');
@@ -103,9 +105,9 @@ export function createCombinedField({ input, ghost, clearBtn, liveTag, measure }
     if (!left) {
       if (ghost) ghost.textContent = '';
     } else if (isFocused) {
-      if (totalDigits < 4) {
+      if (rightRaw.length === 0) {
         template = (finalizeDisplaySegment(leftRaw) || '00:00') + ' - ' + nowHHMMSS();
-        const current = left;
+        const current = left + (totalDigits >= 4 ? ' - ' : '');
         if (ghost) ghost.textContent = template.slice(current.length);
       } else {
         template = (finalizeDisplaySegment(leftRaw) || '00:00') + ' - 00:00';

@@ -16,3 +16,23 @@ export function parseDays(value) {
   const num = Number(cleaned);
   return Number.isFinite(num) && num >= 1 ? num : null;
 }
+
+export function pluralizeDays(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 'дней';
+
+  const abs = Math.abs(num);
+  if (!Number.isFinite(abs)) return 'дней';
+
+  // Для дробных значений принимаем форму, используемую, например, в «1,5 дня».
+  if (abs % 1 !== 0) return 'дня';
+
+  const intVal = Math.floor(abs);
+  const rem100 = intVal % 100;
+  if (rem100 >= 11 && rem100 <= 14) return 'дней';
+
+  const rem10 = intVal % 10;
+  if (rem10 === 1) return 'день';
+  if (rem10 >= 2 && rem10 <= 4) return 'дня';
+  return 'дней';
+}

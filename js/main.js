@@ -2,7 +2,7 @@ import { createCombinedField } from './ui/combinedField.js';
 import { createControls } from './ui/controls.js';
 import { createResults } from './ui/results.js';
 import { parseTime, parseTimeSeconds, formatDurationFromSeconds } from './utils/time.js';
-import { formatMoney } from './utils/format.js';
+import { formatMoney, pluralizeDays } from './utils/format.js';
 
 const els = {
   timeInput: document.getElementById('timeRange'),
@@ -16,6 +16,7 @@ const els = {
   daysInput: document.getElementById('days'),
   minusDaysBtn: document.getElementById('minusDaysBtn'),
   plusDaysBtn: document.getElementById('plusDaysBtn'),
+  daysSuffix: document.getElementById('daysSuffix'),
   durationText: document.getElementById('durationText'),
   amountText: document.getElementById('amountText'),
   copyAmountBtn: document.getElementById('copyAmountBtn'),
@@ -39,12 +40,13 @@ function recalc() {
   const startValue = leftDigits ? (combined.getStartValue() || '') : '';
   const rateValue = controls.getRate();
   const daysValue = controls.getDays() ?? 1;
+  if (els.daysSuffix) els.daysSuffix.textContent = pluralizeDays(daysValue);
 
   if (!startValue) { results.clear(); return; }
 
   const isFocused = (document.activeElement === els.timeInput);
   const rightAbsent = rightDigits.length === 0;
-  const live = rightAbsent && ((!isFocused && leftDigits.length > 0) || (isFocused && leftDigits.length > 0 && leftDigits.length < 4));
+  const live = rightAbsent;
 
   if (live) {
     const startSeconds = parseTimeSeconds(startValue);
