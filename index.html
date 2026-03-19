@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Калькулятор рабочего времени</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Калькулятор рабочего времени</h1>
+      <p class="sub">Введите начало и окончание работы в формате ЧЧ:ММ. Если время окончания пустое, будет использоваться текущее время и результат станет пересчитываться автоматически.</p>
+
+      <div class="divider"></div>
+      
+      <div class="field">
+        <label for="rate">Стоимость часа</label>
+        <div class="row">
+          <button class="btn" id="minusBtn" type="button" aria-label="Уменьшить стоимость часа">−</button>
+          <div class="rateWrap">
+            <input id="rate" class="rateInput" type="text" inputmode="decimal" autocomplete="off" value="20" aria-label="Стоимость часа" />
+            <span class="currency">€</span>
+          </div>
+          <button class="btn" id="plusBtn" type="button" aria-label="Увеличить стоимость часа">+</button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label for="days">Количество дней</label>
+        <div class="row">
+          <button class="btn" id="minusDaysBtn" type="button" aria-label="Уменьшить количество дней">−</button>
+          <div class="rateWrap">
+            <input id="days" class="rateInput" type="text" inputmode="decimal" autocomplete="off" value="1" aria-label="Количество дней" />
+          </div>
+          <button class="btn" id="plusDaysBtn" type="button" aria-label="Увеличить количество дней">+</button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label for="timeRange">Время (начало — окончание)</label>
+        <div class="inputShell">
+          <input id="timeRange" class="input" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="Время начала и окончания" maxlength="23" />
+          <div id="timeGhost" class="ghost" aria-hidden="true"></div>
+          <div id="liveTag" class="liveInline"><span class="liveDot"></span>Текущее время</div>
+          <button id="timeClear" class="clearBtn" type="button" aria-label="Очистить время">×</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result">
+        <div class="resultBox">
+          <div class="resultLabel">Отработанное время</div>
+          <div id="durationText" class="resultValue">—</div>
+        </div>
+
+        <div class="resultBox">
+          <div class="resultLabel">Итоговая сумма</div>
+          <div id="amountText" class="resultValue">—</div>
+          <button id="copyAmountBtn" class="copyBtn" type="button" aria-label="Копировать сумму">Копировать</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <span id="measure" class="measure"></span>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

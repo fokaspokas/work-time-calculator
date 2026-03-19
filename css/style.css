@@ -1,0 +1,294 @@
+:root {
+  --panel: #171a21;
+  --panel-2: #1e232d;
+  --text: #f3f5f7;
+  --muted: #98a2b3;
+  --muted-2: rgba(152, 162, 179, 0.52);
+  --accent: #6ea8fe;
+  --border: #2b3240;
+  --success: #22c55e;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0c0f14;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #0c0f14 0%, #11151c 100%);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: max(18px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)) 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 560px;
+  overflow: hidden;
+}
+
+.card {
+  background: rgba(23, 26, 33, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+h1 {
+  font-size: 1.45rem;
+  line-height: 1.15;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.4;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  font-size: 0.92rem;
+  color: #d7dce4;
+  font-weight: 600;
+}
+
+.inputShell {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  caret-color: var(--text);
+  border-radius: 16px;
+  padding: 14px 52px 14px 16px;
+  font-size: 1.15rem;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+  letter-spacing: 0.01em;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(110, 168, 254, 0.14);
+}
+
+.ghost {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.15rem;
+  color: var(--muted-2);
+  pointer-events: none;
+  user-select: none;
+  white-space: pre;
+  letter-spacing: 0.01em;
+}
+
+.clearBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.08);
+  color: rgba(243,245,247,0.82);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  z-index: 2;
+}
+
+.clearBtn.visible { display: flex; }
+
+.row {
+  display: grid;
+  grid-template-columns: 56px 110px 56px;
+  gap: 10px;
+  align-items: center;
+}
+.btn {
+  min-height: 54px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1d2430 0%, #161c25 100%);
+  color: var(--text);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.result {
+  margin-top: 18px;
+  /* divider moved to a separate element (.divider) so it can be inserted anywhere */
+  display: grid;
+  gap: 12px;
+}
+
+.divider {
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+.resultBox {
+  background: linear-gradient(180deg, rgba(59,130,246,0.10), rgba(59,130,246,0.04));
+  border: 1px solid rgba(110,168,254,.2);
+  border-radius: 18px;
+  padding: 14px 16px;
+  position: relative;
+}
+
+.resultLabel {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+}
+
+.resultValue {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding-right: 72px; /* space for copy button */
+}
+
+.copyBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  height: 45px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.copyBtn.visible { display: flex; }
+
+.copyBtn.copied { background: var(--success); color: #07120a; border-color: rgba(34,197,94,0.6); }
+
+.error {
+  min-height: 22px;
+  color: #ff9090;
+  font-size: 0.9rem;
+  padding-left: 2px;
+}
+
+.liveInline {
+  position: absolute;
+  right: 46px; /* leave space for clear button on the far right */
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--muted-2);
+  pointer-events: none;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(34,197,94,.7);
+}
+
+.rateWrap { position: relative; }
+
+.rateInput {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 14px 32px 14px 16px;
+  font-size: 1.15rem;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.rateInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(110, 168, 254, 0.14);
+}
+
+.currency {
+  position: absolute;
+  right: 14px;
+  top: 48%;
+  transform: translateY(-50%);
+  color: #98a2b3;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.measure {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Allow text selection only in inputs and result values */
+input, textarea, .input, .rateInput, .resultValue {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+@media (min-width: 520px) {
+  .grid.two { grid-template-columns: 1fr 1fr; }
+}
