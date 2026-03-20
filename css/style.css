@@ -185,7 +185,6 @@ label {
   border: 1px solid rgba(110,168,254,.2);
   border-radius: 18px;
   padding: 14px 16px;
-  padding-right: 152px;
   position: relative;
 }
 
@@ -213,13 +212,21 @@ label {
 .resultValueRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
 }
 
 .resultActions {
   display: flex;
   gap: 8px;
+}
+
+.resultActions {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
 }
 
 .actionBtn {
@@ -249,11 +256,11 @@ label {
 }
 
 .actionBtn:active {
-  transform: scale(0.98);
+  transform: scale(0.9);
 }
 
 .actionBtn.clicked {
-  animation: button-click 220ms ease;
+  animation: button-click 500ms ease;
 }
 
 .actionBtn.saved {
@@ -262,7 +269,7 @@ label {
 
 @keyframes button-click {
   0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
-  50% { transform: scale(0.95); box-shadow: 0 0 0 10px rgba(110,168,254,0.25); }
+  50% { transform: scale(1); box-shadow: 0 0 0 10px rgba(110,168,254,0.25); }
   100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
 }
 
@@ -290,11 +297,17 @@ label {
   color: var(--text);
   font-size: 0.9rem;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 260ms cubic-bezier(.2,.9,.2,1), color 260ms cubic-bezier(.2,.9,.2,1), transform 120ms ease;
 }
 
 .copyBtn.visible { display: flex; }
 
 .copyBtn.copied { background: var(--success); color: #07120a; border-color: rgba(34,197,94,0.6); }
+
+.copyBtn.clicked { transform: scale(0.98); }
 
 .error {
   min-height: 22px;
@@ -375,33 +388,31 @@ label {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 6px;
 }
 
-.history summary {
+.historyHeader h2 {
   font-weight: 600;
-  cursor: pointer;
-  list-style: none;
+  color: var(--muted);
+  font-size: 0.88rem;
   margin: 0;
+  margin-right: 8px;
+  margin-bottom: 8px;
   flex: 1;
-}
-
-.history summary::-webkit-details-marker {
-  display: none;
 }
 
 .selectedSummary {
   font-weight: 600;
   font-size: 1rem;
+  margin-bottom: 5px;
   color: var(--accent);
   display: none;
 }
 
 .historyList {
-  margin: 12px 0 8px;
+  margin: 6px 0 8px;
   display: grid;
   gap: 8px;
-  max-height: 180px;
-  overflow-y: auto;
 }
 
 .historyItem {
@@ -417,10 +428,34 @@ label {
   transition: background .15s ease, border-color .15s ease;
   display: grid;
   gap: 4px;
+  position: relative;
+}
+
+.historyItemDelete {
+  position: absolute;
+  right: 15px;
+  top: 17px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.historyItemDelete:hover {
+  opacity: 1;
 }
 
 .historyItem:hover {
-  background: rgba(255,255,255,0.10);
+  /* background: rgba(255,255,255,0.10); */
 }
 
 .historyItem.selected {
@@ -433,13 +468,77 @@ label {
   color: var(--muted-2);
 }
 
+.historyItemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.historyItemMeta {
+  font-size: 0.82rem;
+  color: var(--muted-2);
+  text-align: right;
+  margin-left: 8px;
+  /* reserve space for the delete button to avoid overlap */
+  margin-right: 44px;
+}
+
 .historyItemContent {
   font-size: 0.94rem;
+}
+
+.historyItemContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.historyItemContentLeft {
+  color: var(--text);
+}
+
+.historyItemAmount {
+  color: var(--text);
+  font-weight: 700;
+  text-align: right;
+  margin-right: 44px;
 }
 
 .historyEmpty {
   color: var(--muted);
   font-size: 0.92rem;
+}
+
+.historyItemAdd {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0px 12px;
+}
+
+.historyItemAddIcon {
+  width: 10px;
+  height: 64px;
+  padding-bottom: 5px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 400;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.historyItemAdd .historyItemContent {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted-2);
 }
 
 .historyFooter {

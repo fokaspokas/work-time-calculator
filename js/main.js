@@ -21,7 +21,6 @@ const els = {
   durationText: document.getElementById('durationText'),
   amountText: document.getElementById('amountText'),
   copyAmountBtn: document.getElementById('copyAmountBtn'),
-  saveResultBtn: document.getElementById('saveResultBtn'),
   historyList: document.getElementById('historyList'),
   clearHistoryBtn: document.getElementById('clearHistoryBtn'),
   deselectHistoryBtn: document.getElementById('deselectHistoryBtn'),
@@ -53,7 +52,7 @@ function recalc() {
   if (!startValue) {
     results.clear();
     lastCalculation = null;
-    if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
+    if (history && typeof history.setPending === 'function') history.setPending(null);
     return;
   }
 
@@ -66,7 +65,7 @@ function recalc() {
     if (startSeconds === null) {
       results.clear();
       lastCalculation = null;
-      if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
+      if (history && typeof history.setPending === 'function') history.setPending(null);
       if (els.errorText) els.errorText.textContent = 'Проверьте время начала.';
       return;
     }
@@ -78,7 +77,7 @@ function recalc() {
     if (rateValue === null) {
       results.clear();
       lastCalculation = null;
-      if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
+      if (history && typeof history.setPending === 'function') history.setPending(null);
       if (els.errorText) els.errorText.textContent = 'Проверьте стоимость часа.';
       return;
     }
@@ -95,7 +94,7 @@ function recalc() {
       duration,
       amount
     };
-    if (els.saveResultBtn) els.saveResultBtn.classList.add('visible');
+    if (history && typeof history.setPending === 'function') history.setPending(lastCalculation);
     return;
   }
 
@@ -120,32 +119,15 @@ function recalc() {
     duration,
     amount
   };
-  if (els.saveResultBtn) els.saveResultBtn.classList.add('visible');
+  if (history && typeof history.setPending === 'function') history.setPending(lastCalculation);
 }
 
 function init() {
   combined = createCombinedField({ input: els.timeInput, ghost: els.timeGhost, clearBtn: els.timeClear, liveTag: els.liveTag, measure: els.measure }, recalc);
   controls = createControls({ rateInput: els.rateInput, minusBtn: els.minusBtn, plusBtn: els.plusBtn, daysInput: els.daysInput, minusDaysBtn: els.minusDaysBtn, plusDaysBtn: els.plusDaysBtn }, recalc);
   results = createResults({ durationEl: els.durationText, amountEl: els.amountText, copyBtn: els.copyAmountBtn });
-  if (els.saveResultBtn) els.saveResultBtn.classList.remove('visible');
 
-  if (els.saveResultBtn) {
-    els.saveResultBtn.addEventListener('click', () => {
-      if (!lastCalculation) return;
-      els.saveResultBtn.classList.add('clicked');
-      setTimeout(() => els.saveResultBtn.classList.remove('clicked'), 220);
-
-      els.saveResultBtn.classList.add('saved');
-      setTimeout(() => els.saveResultBtn.classList.remove('saved'), 800);
-
-      history?.add(lastCalculation);
-      if (els.timeInput) els.timeInput.value = '';
-      if (combined) combined.render();
-      recalc();
-    });
-  }
-
-  const summaryHeader = document.querySelector('.history summary');
+  const summaryHeader = document.querySelector('.history h2');
   history = createHistory({
     listEl: els.historyList,
     clearBtn: els.clearHistoryBtn,

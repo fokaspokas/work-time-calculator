@@ -14,22 +14,31 @@ export function createResults({ durationEl, amountEl, copyBtn }) {
     copyBtn.addEventListener('click', async () => {
       const text = getAmountText();
       if (!text) return;
-
+      // brief click feedback
       copyBtn.classList.add('clicked');
-      setTimeout(() => copyBtn.classList.remove('clicked'), 220);
+      setTimeout(() => copyBtn.classList.remove('clicked'), 180);
 
       const prev = copyBtn.textContent;
+      // lock width to avoid jumps when changing text
+      const currentWidth = copyBtn.offsetWidth;
+      copyBtn.style.width = currentWidth + 'px';
+
       try {
         await navigator.clipboard.writeText(text);
         copyBtn.classList.add('copied');
         copyBtn.textContent = 'Скопировано';
-        setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.textContent = prev; }, 1200);
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.textContent = prev;
+          copyBtn.style.width = '';
+        }, 1200);
       } catch (e) {
+        // fallback copy
         const ta = document.createElement('textarea');
         ta.value = text;
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); } finally { document.body.removeChild(ta); }
+        try { document.execCommand('copy'); } finally { document.body.removeChild(ta); copyBtn.style.width = ''; }
       }
     });
   }

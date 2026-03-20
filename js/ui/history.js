@@ -23,7 +23,7 @@ function formatDate(isoString) {
   try {
     const date = new Date(isoString);
     const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-    const months = ['янв', 'фев', 'март', 'апр', 'май', 'июнь', 'июль', 'авг', 'сент', 'окт', 'ноя', 'дек'];
+    const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
     const dayName = days[date.getDay()];
     const monthName = months[date.getMonth()];
     const day = date.getDate();
@@ -43,10 +43,16 @@ function formatTimeRange(entry) {
 
 function formatLabel(entry) {
   const range = formatTimeRange(entry);
+  const amount = entry.amount || '';
+  // days and rate are shown in meta (date line). Label keeps range and amount.
+  const parts = [range, amount].filter(Boolean);
+  return parts.join(' · ');
+}
+
+function formatMeta(entry) {
   const rate = entry.rate != null ? `${entry.rate}€/ч` : '';
   const days = entry.days != null ? `${entry.days} дн.` : '';
-  const amount = entry.amount || '';
-  const parts = [range, days, rate, amount].filter(Boolean);
+  const parts = [days, rate].filter(Boolean);
   return parts.join(' · ');
 }
 
@@ -59,6 +65,7 @@ function extractAmount(entry) {
 export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summaryHeaderEl, onSelect }) {
   const items = loadFromStorage();
   const selected = new Set();
+  let pending = null;
 
   function updateHeaderSummary() {
     if (!summaryHeaderEl) return;
@@ -67,16 +74,89 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
     summaryHeaderEl.textContent = `История расчётов (${count} ${plural})`;
   }
 
+  function updateClearButton() {
+    if (!clearBtn) return;
+    clearBtn.style.display = items.length ? 'inline-block' : 'none';
+  }
+
+  function setPending(entry) {
+    const next = entry || null;
+
+    // If previously there was a pending entry and now there is another pending
+    // entry, skip re-render — the "Добавить" block is already visible and
+    // doesn't need to update every second. We still want to render when
+    // transitioning between null <-> non-null.
+    if (pending && next) {
+      pending = next;
+      return;
+    }
+
+    function isSamePending(a, b) {
+      if (!a && !b) return true;
+      if (!a || !b) return false;
+      const keys = ['digits', 'start', 'end', 'rate', 'days', 'amount'];
+      for (const k of keys) {
+        const va = a[k] == null ? null : a[k];
+        const vb = b[k] == null ? null : b[k];
+        if (va !== vb) return false;
+      }
+      return true;
+    }
+
+    if (isSamePending(pending, next)) {
+      pending = next; // still set reference but skip render
+      return;
+    }
+
+    pending = next;
+    render();
+  }
+
   function render() {
     if (!listEl) return;
     listEl.innerHTML = '';
     updateHeaderSummary();
+    updateClearButton();
+    updateDeselectButton();
+
+    // If there's a pending entry (data ready to be added) show the add-block first
+    if (pending) {
+      const addRow = document.createElement('div');
+      addRow.className = 'historyItem historyItemAdd';
+      addRow.tabIndex = 0;
+
+      const addIcon = document.createElement('div');
+      addIcon.className = 'historyItemAddIcon';
+      addIcon.textContent = '+';
+
+      const addLabel = document.createElement('div');
+      addLabel.className = 'historyItemContent';
+      addLabel.textContent = 'Добавить';
+
+      addRow.appendChild(addIcon);
+      addRow.appendChild(addLabel);
+
+      function doAdd() {
+        if (!pending) return;
+        add(pending);
+        setPending(null);
+      }
+
+      addRow.addEventListener('click', (e) => { e.stopPropagation(); doAdd(); });
+      addRow.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doAdd(); } });
+
+      listEl.appendChild(addRow);
+    }
 
     if (!items.length) {
-      const empty = document.createElement('div');
-      empty.className = 'historyEmpty';
-      empty.textContent = 'Пока нет сохранённых расчётов.';
-      listEl.appendChild(empty);
+      if (!pending) {
+        const empty = document.createElement('div');
+        empty.className = 'historyEmpty';
+        empty.textContent = 'Пока нет сохранённых расчётов.';
+        listEl.appendChild(empty);
+        return;
+      }
+      // if pending exists but no items, continue to render only the addRow
       return;
     }
 
@@ -84,16 +164,49 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
       const row = document.createElement('div');
       row.className = 'historyItem' + (selected.has(item.id) ? ' selected' : '');
 
+
+      const headerEl = document.createElement('div');
+      headerEl.className = 'historyItemHeader';
+
       const dateEl = document.createElement('div');
       dateEl.className = 'historyItemDate';
       dateEl.textContent = formatDate(item.createdAt);
 
+      const metaEl = document.createElement('div');
+      metaEl.className = 'historyItemMeta';
+      metaEl.textContent = formatMeta(item);
+
+      headerEl.appendChild(dateEl);
+      if (metaEl.textContent) headerEl.appendChild(metaEl);
+
+      // content: left = time range, right = amount
       const contentEl = document.createElement('div');
       contentEl.className = 'historyItemContent';
-      contentEl.textContent = formatLabel(item);
 
-      row.appendChild(dateEl);
+      const contentLeft = document.createElement('div');
+      contentLeft.className = 'historyItemContentLeft';
+      contentLeft.textContent = formatTimeRange(item);
+
+      const contentRight = document.createElement('div');
+      contentRight.className = 'historyItemAmount';
+      contentRight.textContent = item.amount || '';
+
+      contentEl.appendChild(contentLeft);
+      contentEl.appendChild(contentRight);
+
+      row.appendChild(headerEl);
       row.appendChild(contentEl);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'historyItemDelete';
+      deleteBtn.textContent = '×';
+      deleteBtn.setAttribute('aria-label', 'Удалить');
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        remove(item.id);
+      });
+      row.appendChild(deleteBtn);
 
       row.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -104,6 +217,7 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
         }
         render();
         updateSummary();
+        updateDeselectButton();
       });
 
       row.addEventListener('dblclick', (e) => {
@@ -135,10 +249,23 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
     summaryEl.style.display = 'block';
   }
 
+  function remove(id) {
+    const index = items.findIndex((item) => item.id === id);
+    if (index < 0) return;
+    items.splice(index, 1);
+    selected.delete(id);
+    saveToStorage(items);
+    render();
+    updateSummary();
+    updateDeselectButton();
+    updateClearButton();
+  }
+
   function deselect() {
     selected.clear();
     render();
     updateSummary();
+    updateDeselectButton();
   }
 
   function updateDeselectButton() {
@@ -172,6 +299,7 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
     saveToStorage(items);
     render();
     updateHeaderSummary();
+    updateClearButton();
   }
 
   function clear() {
@@ -180,6 +308,8 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
     saveToStorage(items);
     render();
     updateSummary();
+    updateDeselectButton();
+    updateClearButton();
   }
 
   if (clearBtn) {
@@ -197,6 +327,8 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
 
   render();
   updateSummary();
+  updateDeselectButton();
+  updateClearButton();
 
   return {
     add,
@@ -204,6 +336,7 @@ export function createHistory({ listEl, clearBtn, deselectBtn, summaryEl, summar
     getItems: () => [...items],
     deselect,
     getSelected: () => Array.from(selected),
-    renderSummary: updateSummary
+    renderSummary: updateSummary,
+    setPending
   };
 }

@@ -10,7 +10,7 @@
   <main class="wrap">
     <section class="card">
       <h1>Калькулятор рабочего времени</h1>
-      <p class="sub">Введите начало и окончание работы в формате ЧЧ:ММ. Если время окончания пустое, будет использоваться текущее время и результат станет пересчитываться автоматически.</p>
+      <!-- <p class="sub">Введите начало и окончание работы в формате ЧЧ:ММ. Если время окончания пустое, будет использоваться текущее время и результат станет пересчитываться автоматически.</p> -->
 
       <div class="divider"></div>
       
@@ -63,22 +63,21 @@
           </div>
           <div class="resultActions">
             <button id="copyAmountBtn" class="actionBtn" type="button" aria-label="Копировать сумму">Копировать</button>
-            <button id="saveResultBtn" class="actionBtn" type="button" aria-label="Сохранить расчёт">Сохранить</button>
           </div>
         </div>
       </div>
 
-      <details class="history" open>
+      <div class="history">
         <div class="historyHeader">
-          <summary>История расчётов</summary>
+          <h2>История расчётов</h2>
           <div id="selectedSummary" class="selectedSummary"></div>
         </div>
         <div id="historyList" class="historyList"></div>
         <div class="historyFooter">
           <button id="clearHistoryBtn" class="linkBtn" type="button">Очистить историю</button>
-          <button id="deselectHistoryBtn" class="linkBtn" type="button">Отменить выделение</button>
+          <button id="deselectHistoryBtn" class="linkBtn" type="button">Снять выделение</button>
         </div>
-      </details>
+      </div>
     </section>
   </main>
   <span id="measure" class="measure"></span>
