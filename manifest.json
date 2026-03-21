@@ -1,6 +1,6 @@
 {
-  "name": "Work Time Calculator",
-  "short_name": "WorkTime",
+  "name": "Рабочее время",
+  "short_name": "Рабочее время",
   "start_url": "/?utm_source=homescreen",
   "display": "standalone",
   "background_color": "#ffffff",
