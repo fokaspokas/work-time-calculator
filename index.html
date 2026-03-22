@@ -22,18 +22,6 @@
       <!-- <p class="sub">Введите начало и окончание работы в формате ЧЧ:ММ. Если время окончания пустое, будет использоваться текущее время и результат станет пересчитываться автоматически.</p> -->
 
       <div class="divider"></div>
-      
-      <div class="field">
-        <!-- <label for="rate">Стоимость часа</label> -->
-        <div class="row">
-          <button class="btn" id="minusBtn" type="button" aria-label="Уменьшить стоимость часа">−</button>
-          <div class="rateWrap">
-            <input id="rate" class="rateInput" type="text" inputmode="decimal" autocomplete="off" value="20" aria-label="Стоимость часа" />
-            <span class="currency">€/час</span>
-          </div>
-          <button class="btn" id="plusBtn" type="button" aria-label="Увеличить стоимость часа">+</button>
-        </div>
-      </div>
 
       <div class="field" style="margin-top:14px;">
         <!-- <label for="days">Количество дней</label> -->
@@ -44,6 +32,18 @@
             <span id="daysSuffix" class="currency">день</span>
           </div>
           <button class="btn" id="plusDaysBtn" type="button" aria-label="Увеличить количество дней">+</button>
+        </div>
+      </div>    
+
+      <div class="field">
+        <!-- <label for="rate">Стоимость часа</label> -->
+        <div class="row">
+          <button class="btn" id="minusBtn" type="button" aria-label="Уменьшить стоимость часа">−</button>
+          <div class="rateWrap">
+            <input id="rate" class="rateInput" type="text" inputmode="decimal" autocomplete="off" value="20" aria-label="Стоимость часа" />
+            <span class="currency">€/час</span>
+          </div>
+          <button class="btn" id="plusBtn" type="button" aria-label="Увеличить стоимость часа">+</button>
         </div>
       </div>
 
